@@ -9,18 +9,30 @@ public class AI : MonoBehaviour
     private Transform _destination;
 
     private NavMeshAgent _agent;
+    private bool _isActive = false;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         _agent = GetComponent<NavMeshAgent>();
+        _destination = GameObject.Find("AI-Ending-Position").transform;
+    }
 
-        _agent.destination = _destination.position;
+    private void OnEnable()
+    { 
+        _agent.SetDestination(_destination.position);
+        _isActive = true;
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+
+    private void OnTriggerEnter(Collider other)
+    {
+        this.gameObject.SetActive(false);
     }
 }
