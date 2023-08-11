@@ -22,6 +22,7 @@ public class AI : MonoBehaviour
     [SerializeField]
     private int _currentWaypointIndex = 0;
     private bool _isHiding = false;
+    private bool _isDead = false;
     private Animator _anim;
 
     void Awake()
@@ -37,6 +38,7 @@ public class AI : MonoBehaviour
     private void OnEnable()
     {
         _currentWaypointIndex = 0;
+        _isDead = false;
         _currentState = AIState.Run;
         if (_waypoints.Count == 0)
             GameManager.Instance.AssignWaypoints(_waypoints);
@@ -59,7 +61,11 @@ public class AI : MonoBehaviour
                 }
                 break;
             case AIState.Death:
-                Death();
+                if (!_isDead)
+                {
+                    Death();
+                    _isDead = true;
+                }
                 break;
             default:
                 Debug.LogError("The AI has no valid state.");
@@ -69,6 +75,7 @@ public class AI : MonoBehaviour
 
     private void Run()
     {
+        _anim.SetFloat("Speed", _agent.velocity.magnitude);
         if(_agent.remainingDistance <= 0.25f)
         {
             _currentState = AIState.Hide;
@@ -78,7 +85,9 @@ public class AI : MonoBehaviour
     private void Death()
     {
         _agent.isStopped = true;
+        _anim.SetTrigger("Death");
         // Award 50 points to the player & update the UI
+        Debug.Log("You get 50 points.");
     }
 
     private void ChooseHidingSpot()
@@ -106,16 +115,17 @@ public class AI : MonoBehaviour
     public void StartDeath()
     {
         _currentState = AIState.Death;
-        Debug.Log("You get 50 points.");
     }
 
     IEnumerator Hide()
     {
         _agent.isStopped = true;
+        _anim.SetBool("Hiding", true);
         float rand = Random.Range(0.25f, 3f);
         yield return new WaitForSeconds(rand);
         ChooseHidingSpot();
         _currentState = AIState.Run;
+        _anim.SetBool("Hiding", false);
         _agent.isStopped = false;
         _isHiding = false;
     }

@@ -188,13 +188,20 @@ namespace GameDevHQ.FileBase.Plugins.FPS_Character_Controller
         {
             Ray rayOrigin = _fpsCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
             RaycastHit hitInfo;
-            if(Physics.Raycast(rayOrigin, out hitInfo, Mathf.Infinity, 1 << 6))
+            if(Physics.Raycast(rayOrigin, out hitInfo, Mathf.Infinity, 1 << 6 | 1 << 7))
             {
-                AI aI = hitInfo.collider.GetComponent<AI>();
-                if (aI != null)
+                if (hitInfo.collider.tag == "Clown")
                 {
-                    aI.StartDeath();
-                    _score += 50;
+                    AI aI = hitInfo.collider.GetComponent<AI>();
+                    if (aI != null)
+                    {
+                        aI.StartDeath();
+                        _score += 50;
+                    }
+                }
+                if(hitInfo.collider.tag == "Force Barrier")
+                {
+                    Debug.Log("I shot the barrier");
                 }
             }
         }
