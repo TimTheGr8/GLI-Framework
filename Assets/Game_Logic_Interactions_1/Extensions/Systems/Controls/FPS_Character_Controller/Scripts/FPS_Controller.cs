@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace GameDevHQ.FileBase.Plugins.FPS_Character_Controller
 {
@@ -42,6 +43,9 @@ namespace GameDevHQ.FileBase.Plugins.FPS_Character_Controller
         private float _lookSensitivity = 5.0f; //mouse sensitivity 
 
         private Camera _fpsCamera;
+
+        private int _score = 0;
+
         private void Start()
         {
             _controller = GetComponent<CharacterController>(); //assign the reference variable to the component
@@ -113,6 +117,11 @@ namespace GameDevHQ.FileBase.Plugins.FPS_Character_Controller
             velocity = transform.TransformDirection(velocity);
 
             _controller.Move(velocity * Time.deltaTime); //move the controller x meters per second
+
+            if(Mouse.current.leftButton.wasPressedThisFrame)
+            {
+                Shoot();
+            }
         }
 
         void CameraController()
@@ -172,6 +181,21 @@ namespace GameDevHQ.FileBase.Plugins.FPS_Character_Controller
                     );
 
                 _fpsCamera.transform.localPosition = resetHead; //assign the head position back to the initial cam pos
+            }
+        }
+
+        private void Shoot()
+        {
+            Ray rayOrigin = _fpsCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+            RaycastHit hitInfo;
+            if(Physics.Raycast(rayOrigin, out hitInfo, Mathf.Infinity, 1 << 6))
+            {
+                AI aI = hitInfo.collider.GetComponent<AI>();
+                if (aI != null)
+                {
+                    aI.StartDeath();
+                    _score += 50;
+                }
             }
         }
     }

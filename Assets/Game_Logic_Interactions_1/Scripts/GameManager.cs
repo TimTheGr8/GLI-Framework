@@ -26,10 +26,16 @@ public class GameManager : MonoBehaviour
     private Transform _aiContainer;
     [SerializeField]
     private List<GameObject> _aiPool;
+    [SerializeField]
+    private List<Transform> _aiWayPoints;
+
+    void Awake()
+    {
+        _instance = this;
+    }
 
     void Start()
     {
-        //Invoke("SpawnAI", 1);
         _aiPool = SpawnManager.Instance.GeneratePool(_AI, _aiPool, 10, _aiContainer);
     }
 
@@ -42,7 +48,11 @@ public class GameManager : MonoBehaviour
     }
 
 
-    private void SpawnAI()
+    public void AssignWaypoints(List<Transform> waypoints)
     {
+        foreach (var point in _aiWayPoints)
+        {
+            waypoints.Add(point);
+        }
     }
 }
