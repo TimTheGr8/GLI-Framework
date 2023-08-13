@@ -45,6 +45,8 @@ namespace GameDevHQ.FileBase.Plugins.FPS_Character_Controller
         private Camera _fpsCamera;
 
         private int _score = 0;
+        [SerializeField]
+        private int _ammoCount = 30;
 
         private void Start()
         {
@@ -52,6 +54,7 @@ namespace GameDevHQ.FileBase.Plugins.FPS_Character_Controller
             _fpsCamera = GetComponentInChildren<Camera>();
             _initialCameraPos = _fpsCamera.transform.localPosition;
             Cursor.lockState = CursorLockMode.Locked;
+            UIManager.Instance.UpdateAmmoCount(_ammoCount);
         }
 
         private void Update()
@@ -118,7 +121,7 @@ namespace GameDevHQ.FileBase.Plugins.FPS_Character_Controller
 
             _controller.Move(velocity * Time.deltaTime); //move the controller x meters per second
 
-            if(Mouse.current.leftButton.wasPressedThisFrame)
+            if(Mouse.current.leftButton.wasPressedThisFrame /* Check number of remaining enemies*/ && _ammoCount > 0)
             {
                 Shoot();
             }
@@ -193,10 +196,11 @@ namespace GameDevHQ.FileBase.Plugins.FPS_Character_Controller
                 if (hitInfo.collider.tag == "Clown")
                 {
                     AI aI = hitInfo.collider.GetComponent<AI>();
-                    if (aI != null)
+                    if (aI != null && aI.IsAIDead() == false)
                     {
                         aI.StartDeath();
                         _score += 50;
+                        UIManager.Instance.UpdateScore(_score);
                     }
                 }
                 if(hitInfo.collider.tag == "Force Barrier")
@@ -204,6 +208,8 @@ namespace GameDevHQ.FileBase.Plugins.FPS_Character_Controller
                     Debug.Log("I shot the barrier");
                 }
             }
+            _ammoCount--;
+            UIManager.Instance.UpdateAmmoCount(_ammoCount);
         }
     }
 }

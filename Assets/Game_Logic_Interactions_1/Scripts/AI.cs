@@ -5,9 +5,6 @@ using UnityEngine.AI;
 
 public class AI : MonoBehaviour
 {
-    [SerializeField]
-    private Transform _destination;
-
     private NavMeshAgent _agent;
     private enum AIState
     {
@@ -41,9 +38,15 @@ public class AI : MonoBehaviour
         _isDead = false;
         _currentState = AIState.Run;
         if (_waypoints.Count == 0)
-            GameManager.Instance.AssignWaypoints(_waypoints);
+            SpawnManager.Instance.AssignWaypoints(_waypoints);
         _currentWaypointIndex = Random.Range(0, 5);
+        _agent.speed = Random.Range(5.5f, 10.0f);
         _agent.SetDestination(_waypoints[_currentWaypointIndex].position);
+    }
+
+    private void OnDisable()
+    {
+        _isDead = true;
     }
 
     private void Update()
@@ -76,7 +79,7 @@ public class AI : MonoBehaviour
     private void Run()
     {
         _anim.SetFloat("Speed", _agent.velocity.magnitude);
-        if(_agent.remainingDistance <= 0.25f)
+        if (_agent.remainingDistance <= 0.75f)
         {
             _currentState = AIState.Hide;
         }
@@ -86,25 +89,26 @@ public class AI : MonoBehaviour
     {
         _agent.isStopped = true;
         _anim.SetTrigger("Death");
-        // Award 50 points to the player & update the UI
-        Debug.Log("You get 50 points.");
+        StartCoroutine(DeactivateObject());
+        GameManager.Instance.UpdateEnemyCount(-1);
     }
 
     private void ChooseHidingSpot()
     {
         int newIndex;
-        if (_currentWaypointIndex <= 4)
-        {
-             newIndex = Random.Range(_currentWaypointIndex, 7);
-        }
-        else if(_currentWaypointIndex <= 6)
-        {
-            newIndex = Random.Range(_currentWaypointIndex, 10);
-        }
-        else
-        {
-            newIndex = _waypoints.Count - 1;
-        }
+        newIndex = Random.Range(_currentWaypointIndex, _waypoints.Count);
+        //if (_currentWaypointIndex <= 4)
+        //{
+        //     newIndex = Random.Range(_currentWaypointIndex + 1, 7);
+        //}
+        //else if(_currentWaypointIndex <= 6)
+        //{
+        //    newIndex = Random.Range(_currentWaypointIndex + 1, 10);
+        //}
+        //else
+        //{
+        //    newIndex = _waypoints.Count - 1;
+        //}
         // Level 1 0 - 4
         // Level 2 5 - 6
         // Level 3 7 - 9
@@ -117,22 +121,38 @@ public class AI : MonoBehaviour
         _currentState = AIState.Death;
     }
 
+    public bool IsAIDead()
+    {
+        return _isDead;
+    }
+
     IEnumerator Hide()
     {
         _agent.isStopped = true;
+        _agent.avoidancePriority = 0;
         _anim.SetBool("Hiding", true);
-        float rand = Random.Range(0.25f, 3f);
+        float rand = Random.Range(0.5f, 3f);
         yield return new WaitForSeconds(rand);
         ChooseHidingSpot();
-        _currentState = AIState.Run;
-        _anim.SetBool("Hiding", false);
         _agent.isStopped = false;
+        _anim.SetBool("Hiding", false);
         _isHiding = false;
+        _currentState = AIState.Run;
+        _agent.avoidancePriority = 50;
+    }
+
+    IEnumerator DeactivateObject()
+    {
+        yield return new WaitForSeconds(3.7f);
+        this.gameObject.SetActive(false);
     }
 
     private void OnTriggerEnter(Collider collider)
     {
-        if(collider.tag == "Destination")
+        if (collider.tag == "Destination")
+        {
             this.gameObject.SetActive(false);
+            GameManager.Instance.UpdateEnemyCount(-1);
+        }
     }
 }

@@ -17,17 +17,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
-    [SerializeField]
-    private GameObject _AI;
-    [SerializeField]
-    private Transform _spawnLocation;
-    [SerializeField]
-    private Transform _aiContainer;
-    [SerializeField]
-    private List<GameObject> _aiPool;
-    [SerializeField]
-    private List<Transform> _aiWayPoints;
+    private bool _gameRunning = false;
+    private int _totalEnemies = 0;
 
     void Awake()
     {
@@ -36,23 +27,27 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        _aiPool = SpawnManager.Instance.GeneratePool(_AI, _aiPool, 10, _aiContainer);
+        _gameRunning = true;
     }
 
     void Update()
     {
-        if (Keyboard.current.lKey.wasPressedThisFrame)
-        {
-            SpawnManager.Instance.RequestGameObject(_AI, _aiPool, _aiContainer, _spawnLocation);
-        }
+        
     }
 
-
-    public void AssignWaypoints(List<Transform> waypoints)
+    public bool IsGameRunning()
     {
-        foreach (var point in _aiWayPoints)
-        {
-            waypoints.Add(point);
-        }
+        return _gameRunning;
+    }
+
+    public void GameOver()
+    {
+        _gameRunning = false;
+    }
+
+    public void UpdateEnemyCount(int amount)
+    {
+        _totalEnemies += amount;
+        UIManager.Instance.UpdateEnemies(_totalEnemies);
     }
 }

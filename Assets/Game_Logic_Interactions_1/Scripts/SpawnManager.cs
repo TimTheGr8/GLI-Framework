@@ -16,9 +16,35 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
+    [SerializeField]
+    private GameObject _AI;
+    [SerializeField]
+    private Transform _spawnLocation;
+    [SerializeField]
+    private Transform _aiContainer;
+    [SerializeField]
+    private List<GameObject> _aiPool;
+    [SerializeField]
+    private List<Transform> _aiWayPoints;
+
     void Awake()
     {
         _instance = this;
+    }
+
+    private void Start()
+    {
+        _aiPool = SpawnManager.Instance.GeneratePool(_AI, _aiPool, 20, _aiContainer);
+        StartCoroutine(StartSpawningAI());
+        SpawnAI();
+    }
+
+    private void Update()
+    {
+        if (GameManager.Instance.IsGameRunning() == false)
+        {
+            StopCoroutine(StartSpawningAI());
+        }
     }
 
     public List<GameObject> GeneratePool(GameObject gameObject, List<GameObject> pool, int numberOfObjects, Transform container)
@@ -34,22 +60,35 @@ public class SpawnManager : MonoBehaviour
         return pool;
     }
 
-    public GameObject RequestGameObject(GameObject gameObject, List<GameObject> pool, Transform container, Transform spawnLocation)
+    private void SpawnAI()
     {
-        foreach (var go in pool)
+        foreach (var go in _aiPool)
         {
-            if(go.activeInHierarchy == false)
+            if (go.activeInHierarchy == false)
             {
-                go.transform.position = spawnLocation.position;
+                go.transform.position = _spawnLocation.position;
                 go.SetActive(true);
-                return go;
+                GameManager.Instance.UpdateEnemyCount(1);
+                return;
             }
         }
-        // Create a new game object and add it to the pool
-        GameObject gameObj = Instantiate(gameObject);
-        gameObj.transform.parent = container;
-        pool.Add(gameObj);
+    }
 
-        return gameObj;
+    public void AssignWaypoints(List<Transform> waypoints)
+    {
+        foreach (var point in _aiWayPoints)
+        {
+            waypoints.Add(point);
+        }
+    }
+
+    IEnumerator StartSpawningAI ()
+    {
+        while(GameManager.Instance.IsGameRunning())
+        {
+            float randTime = Random.Range(1f, 7f);
+            yield return new WaitForSeconds(randTime);
+            SpawnAI();
+        }
     }
 }
