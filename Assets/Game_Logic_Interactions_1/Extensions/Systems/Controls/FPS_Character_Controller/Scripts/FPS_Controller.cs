@@ -48,10 +48,17 @@ namespace GameDevHQ.FileBase.Plugins.FPS_Character_Controller
         [SerializeField]
         private int _ammoCount = 30;
 
+        private AudioSource _audio;
+        [SerializeField]
+        private AudioClip _barrierClip;
+
         private void Start()
         {
             _controller = GetComponent<CharacterController>(); //assign the reference variable to the component
             _fpsCamera = GetComponentInChildren<Camera>();
+            _audio = GetComponent<AudioSource>();
+            if (_audio == null)
+                Debug.LogError("The Player does not have and AudioSource");
             _initialCameraPos = _fpsCamera.transform.localPosition;
             Cursor.lockState = CursorLockMode.Locked;
             UIManager.Instance.UpdateAmmoCount(_ammoCount);
@@ -189,6 +196,7 @@ namespace GameDevHQ.FileBase.Plugins.FPS_Character_Controller
 
         private void Shoot()
         {
+            _audio.Play();
             Ray rayOrigin = _fpsCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
             RaycastHit hitInfo;
             if(Physics.Raycast(rayOrigin, out hitInfo, Mathf.Infinity, 1 << 6 | 1 << 7))
@@ -205,7 +213,7 @@ namespace GameDevHQ.FileBase.Plugins.FPS_Character_Controller
                 }
                 if(hitInfo.collider.tag == "Force Barrier")
                 {
-                    Debug.Log("I shot the barrier");
+                    _audio.PlayOneShot(_barrierClip);
                 }
             }
             _ammoCount--;

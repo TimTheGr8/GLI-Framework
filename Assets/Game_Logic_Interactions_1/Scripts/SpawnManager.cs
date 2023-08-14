@@ -27,6 +27,8 @@ public class SpawnManager : MonoBehaviour
     [SerializeField]
     private List<Transform> _aiWayPoints;
 
+    private AudioSource _audio;
+
     void Awake()
     {
         _instance = this;
@@ -34,7 +36,11 @@ public class SpawnManager : MonoBehaviour
 
     private void Start()
     {
-        _aiPool = SpawnManager.Instance.GeneratePool(_AI, _aiPool, 20, _aiContainer);
+        _audio = GetComponent<AudioSource>();
+        if (_audio == null)
+            Debug.LogError("The Spawn Manager does not have an AudioSource");
+
+        _aiPool = GeneratePool(_AI, _aiPool, 20, _aiContainer);
         StartCoroutine(StartSpawningAI());
         SpawnAI();
     }
@@ -82,13 +88,19 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
+    public void PlayAudio(AudioClip clip)
+    {
+        _audio.PlayOneShot(clip);
+    }
+
     IEnumerator StartSpawningAI ()
     {
         while(GameManager.Instance.IsGameRunning())
         {
             float randTime = Random.Range(1f, 7f);
             yield return new WaitForSeconds(randTime);
-            SpawnAI();
+            if(GameManager.Instance.IsGameRunning())
+                SpawnAI();
         }
     }
 }

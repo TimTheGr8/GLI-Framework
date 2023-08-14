@@ -30,11 +30,6 @@ public class GameManager : MonoBehaviour
         _gameRunning = true;
     }
 
-    void Update()
-    {
-        
-    }
-
     public bool IsGameRunning()
     {
         return _gameRunning;

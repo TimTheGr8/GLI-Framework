@@ -18,9 +18,14 @@ public class AI : MonoBehaviour
     private List<Transform> _waypoints = new List<Transform>();
     [SerializeField]
     private int _currentWaypointIndex = 0;
+    [SerializeField]
+    private AudioClip _deathClip;
+    [SerializeField]
+    private AudioClip _completedTrack;
     private bool _isHiding = false;
     private bool _isDead = false;
     private Animator _anim;
+    private AudioSource _auido;
 
     void Awake()
     {
@@ -30,6 +35,9 @@ public class AI : MonoBehaviour
         _anim = GetComponent<Animator>();
         if (_anim == null)
             Debug.LogError("There is no animator");
+        _auido = GetComponent<AudioSource>();
+        if (_auido == null)
+            Debug.LogError("There is no AudioSource");
     }
 
     private void OnEnable()
@@ -51,7 +59,7 @@ public class AI : MonoBehaviour
 
     private void Update()
     {
-        switch(_currentState)
+        switch (_currentState)
         {
             case AIState.Run:
                 Run();
@@ -87,6 +95,7 @@ public class AI : MonoBehaviour
 
     private void Death()
     {
+        _auido.PlayOneShot(_deathClip, 0.5f);
         _agent.isStopped = true;
         _anim.SetTrigger("Death");
         StartCoroutine(DeactivateObject());
@@ -97,21 +106,6 @@ public class AI : MonoBehaviour
     {
         int newIndex;
         newIndex = Random.Range(_currentWaypointIndex, _waypoints.Count);
-        //if (_currentWaypointIndex <= 4)
-        //{
-        //     newIndex = Random.Range(_currentWaypointIndex + 1, 7);
-        //}
-        //else if(_currentWaypointIndex <= 6)
-        //{
-        //    newIndex = Random.Range(_currentWaypointIndex + 1, 10);
-        //}
-        //else
-        //{
-        //    newIndex = _waypoints.Count - 1;
-        //}
-        // Level 1 0 - 4
-        // Level 2 5 - 6
-        // Level 3 7 - 9
         _currentWaypointIndex = newIndex;
         _agent.SetDestination(_waypoints[_currentWaypointIndex].position);
     }
@@ -151,8 +145,9 @@ public class AI : MonoBehaviour
     {
         if (collider.tag == "Destination")
         {
-            this.gameObject.SetActive(false);
+            SpawnManager.Instance.PlayAudio(_completedTrack);
             GameManager.Instance.UpdateEnemyCount(-1);
+            this.gameObject.SetActive(false);
         }
     }
 }
