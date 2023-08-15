@@ -42,7 +42,6 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("Times Up");
             _secondsRemaining = 0;
             GameManager.Instance.GameOver();
         }

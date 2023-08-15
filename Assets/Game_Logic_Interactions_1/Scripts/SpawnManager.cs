@@ -28,6 +28,18 @@ public class SpawnManager : MonoBehaviour
     private List<Transform> _aiWayPoints;
 
     private AudioSource _audio;
+    [SerializeField]
+    private int _AiToBeSpawned = 10;
+    private int _totalAISpwaned = 0;
+    private int _currentEnemyCount = 0;
+    [HideInInspector]
+    public int EnemyCount
+    { 
+        get
+        {
+            return _currentEnemyCount;
+        } 
+    }
 
     void Awake()
     {
@@ -40,7 +52,7 @@ public class SpawnManager : MonoBehaviour
         if (_audio == null)
             Debug.LogError("The Spawn Manager does not have an AudioSource");
 
-        _aiPool = GeneratePool(_AI, _aiPool, 20, _aiContainer);
+        _aiPool = GeneratePool(_AI, _aiPool, 10, _aiContainer);
         StartCoroutine(StartSpawningAI());
         SpawnAI();
     }
@@ -74,7 +86,8 @@ public class SpawnManager : MonoBehaviour
             {
                 go.transform.position = _spawnLocation.position;
                 go.SetActive(true);
-                GameManager.Instance.UpdateEnemyCount(1);
+                UpdateEnemyCount(1);
+                _totalAISpwaned++;
                 return;
             }
         }
@@ -88,14 +101,25 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
-    public void PlayAudio(AudioClip clip)
+    public void PlayAudio(AudioClip clip, float volume)
     {
-        _audio.PlayOneShot(clip);
+        _audio.PlayOneShot(clip, volume);
+    }
+
+    public void UpdateEnemyCount(int amount)
+    {
+        _currentEnemyCount+= amount;
+        UIManager.Instance.UpdateEnemies(_currentEnemyCount);
+    }
+
+    public int GetEnemyToBeSpawned()
+    {
+        return _AiToBeSpawned;
     }
 
     IEnumerator StartSpawningAI ()
     {
-        while(GameManager.Instance.IsGameRunning())
+        while(GameManager.Instance.IsGameRunning() && _totalAISpwaned < _AiToBeSpawned)
         {
             float randTime = Random.Range(1f, 7f);
             yield return new WaitForSeconds(randTime);

@@ -1,7 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -17,8 +18,21 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    [SerializeField]
+    private GameObject _gameCanvas;
+    [SerializeField]
+    private GameObject _winCanvas;
+    [SerializeField]
+    private GameObject _scoreCanvas;
+    [SerializeField]
+    private GameObject _loseCanvas;
+    [SerializeField]
+    private TMP_Text _playerScore;
+
+    private int _totalEnemies;
     private bool _gameRunning = false;
-    private int _totalEnemies = 0;
+    private int _totalKills = 0;
+    private int _totalScore = 0;
 
     void Awake()
     {
@@ -27,7 +41,16 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        _gameCanvas.SetActive(true);
         _gameRunning = true;
+        _totalEnemies = SpawnManager.Instance.GetEnemyToBeSpawned();
+    }
+
+    public void AddScore(int score)
+    {
+        _totalScore += score;
+        _totalKills++;
+        UIManager.Instance.UpdateScore(_totalScore);
     }
 
     public bool IsGameRunning()
@@ -38,11 +61,39 @@ public class GameManager : MonoBehaviour
     public void GameOver()
     {
         _gameRunning = false;
+        StartCoroutine("DisplayCanvas");
     }
 
-    public void UpdateEnemyCount(int amount)
+    public void ResartGame()
     {
-        _totalEnemies += amount;
-        UIManager.Instance.UpdateEnemies(_totalEnemies);
+        SceneManager.LoadScene(0);
+    }
+
+    IEnumerator DisplayCanvas()
+    {
+        while(SpawnManager.Instance.EnemyCount > 0)
+        {
+            yield return null;
+        }
+        _gameCanvas.SetActive(false);
+        float killPercent = (float)_totalKills / (float)_totalEnemies;
+
+        Cursor.lockState = CursorLockMode.None;
+
+        if (killPercent == 1)
+        {
+            _winCanvas.SetActive(true);
+            Debug.Log("You win");
+        }
+        else if (killPercent >= 0.51f)
+        {
+            _playerScore.text = _totalScore.ToString();
+            _scoreCanvas.SetActive(true);
+        }
+        else
+        {
+            _loseCanvas.SetActive(true);
+        }
+        StopCoroutine("DisplayCanvas");
     }
 }

@@ -95,11 +95,12 @@ public class AI : MonoBehaviour
 
     private void Death()
     {
-        _auido.PlayOneShot(_deathClip, 0.5f);
+        GameManager.Instance.AddScore(50);
         _agent.isStopped = true;
         _anim.SetTrigger("Death");
         StartCoroutine(DeactivateObject());
-        GameManager.Instance.UpdateEnemyCount(-1);
+        SpawnManager.Instance.PlayAudio(_deathClip, 0.5f);
+        SpawnManager.Instance.UpdateEnemyCount(-1);
     }
 
     private void ChooseHidingSpot()
@@ -145,8 +146,8 @@ public class AI : MonoBehaviour
     {
         if (collider.tag == "Destination")
         {
-            SpawnManager.Instance.PlayAudio(_completedTrack);
-            GameManager.Instance.UpdateEnemyCount(-1);
+            SpawnManager.Instance.PlayAudio(_completedTrack, 1.0f);
+            SpawnManager.Instance.UpdateEnemyCount(-1);
             this.gameObject.SetActive(false);
         }
     }
