@@ -26,28 +26,16 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private TMP_Text _timeRemaining;
     [SerializeField]
-    private float _secondsRemaining = 60f;
+    private TMP_Text _playerScore;
+    //[SerializeField]
+    //private float _secondsRemaining = 60f;
 
     private void Awake()
     {
         _instance = this;
     }
 
-    void Update()
-    {
-        if(GameManager.Instance.IsGameRunning() && _secondsRemaining > 0)
-        {
-            _secondsRemaining -= Time.deltaTime;
-            DisplayTime(_secondsRemaining);
-        }
-        else
-        {
-            _secondsRemaining = 0;
-            GameManager.Instance.GameOver();
-        }
-    }
-
-    void DisplayTime(float timeToDisplay)
+    public void DisplayTime(float timeToDisplay)
     {
         timeToDisplay += 1;
         float minutes = Mathf.FloorToInt(timeToDisplay / 60);
@@ -68,5 +56,10 @@ public class UIManager : MonoBehaviour
     public void UpdateAmmoCount(int ammoCount)
     {
         _ammoCount.text = ammoCount.ToString();
+    }
+
+    public void UpdatePlayerScore(int score)
+    {
+        _playerScore.text = score.ToString();
     }
 }

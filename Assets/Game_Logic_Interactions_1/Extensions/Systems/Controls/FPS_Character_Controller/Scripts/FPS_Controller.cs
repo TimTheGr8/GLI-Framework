@@ -209,7 +209,7 @@ namespace GameDevHQ.FileBase.Plugins.FPS_Character_Controller
             _audio.Play();
             Ray rayOrigin = _fpsCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
             RaycastHit hitInfo;
-            if (Physics.Raycast(rayOrigin, out hitInfo, Mathf.Infinity, 1 << 6 | 1 << 7))
+            if (Physics.Raycast(rayOrigin, out hitInfo, Mathf.Infinity, 1 << 6 | 1 << 7 | 1 << 8))
             {
                 if (hitInfo.collider.tag == "Clown")
                 {
@@ -223,6 +223,14 @@ namespace GameDevHQ.FileBase.Plugins.FPS_Character_Controller
                 if (hitInfo.collider.tag == "Force Barrier")
                 {
                     _audio.PlayOneShot(_barrierClip);
+                }
+                if(hitInfo.collider.tag == "Barrel")
+                {
+                    Barrel barrel = hitInfo.collider.GetComponent<Barrel>();
+                    if(barrel != null)
+                    {
+                        barrel.Explode();
+                    }
                 }
             }
             _ammoCount--;
