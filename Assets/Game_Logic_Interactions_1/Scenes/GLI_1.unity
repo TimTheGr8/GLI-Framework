@@ -41949,7 +41949,7 @@ MonoBehaviour:
   - {fileID: 885839851}
   - {fileID: 1934825284}
   - {fileID: 1178248320}
-  _AiToBeSpawned: 10
+  _AiToBeSpawned: 20
 --- !u!4 &1637393614
 Transform:
   m_ObjectHideFlags: 0

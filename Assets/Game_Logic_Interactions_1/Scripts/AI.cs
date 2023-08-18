@@ -99,7 +99,7 @@ public class AI : MonoBehaviour
         _agent.isStopped = true;
         _anim.SetTrigger("Death");
         StartCoroutine(DeactivateObject());
-        SpawnManager.Instance.PlayAudio(_deathClip, 0.5f);
+        GameManager.Instance.PlayAudio(_deathClip, 0.5f);
         SpawnManager.Instance.UpdateEnemyCount(-1);
     }
 
@@ -146,7 +146,7 @@ public class AI : MonoBehaviour
     {
         if (collider.tag == "Destination")
         {
-            SpawnManager.Instance.PlayAudio(_completedTrack, 1.0f);
+            GameManager.Instance.PlayAudio(_completedTrack, 1.0f);
             SpawnManager.Instance.UpdateEnemyCount(-1);
             this.gameObject.SetActive(false);
         }

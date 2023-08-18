@@ -66,6 +66,7 @@ public class GameManager : MonoBehaviour
         else
         {
             _secondsRemaining = 0;
+            if(_gameCanvas.activeInHierarchy)
             GameManager.Instance.GameOver();
         }
     }
@@ -92,6 +93,18 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.LoadScene(0);
     }
+
+    public void PlayAudio(AudioClip clip, float volume)
+    {
+        _audio.PlayOneShot(clip, volume);
+    }
+
+    public IEnumerator Recharge(GameObject go, float time)
+    {
+        yield return new WaitForSeconds(time);
+        go.SetActive(true);
+    }
+
     // TODO: Fix this so that it will stop playing the audio
     IEnumerator DisplayCanvas()
     {

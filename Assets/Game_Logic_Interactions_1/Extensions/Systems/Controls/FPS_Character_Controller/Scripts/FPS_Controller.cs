@@ -138,7 +138,7 @@ namespace GameDevHQ.FileBase.Plugins.FPS_Character_Controller
 
             _controller.Move(velocity * Time.deltaTime); //move the controller x meters per second
 
-            if (Mouse.current.leftButton.wasPressedThisFrame /* Check number of remaining enemies*/ && _ammoCount > 0)
+            if (Mouse.current.leftButton.wasPressedThisFrame && _ammoCount > 0 && GameManager.Instance.IsGameRunning())
             {
                 Shoot();
             }
@@ -222,7 +222,12 @@ namespace GameDevHQ.FileBase.Plugins.FPS_Character_Controller
                 }
                 if (hitInfo.collider.tag == "Force Barrier")
                 {
-                    _audio.PlayOneShot(_barrierClip);
+                    Barrier barrier = hitInfo.collider.GetComponent<Barrier>();
+                    if (barrier != null)
+                    {
+                        _audio.PlayOneShot(_barrierClip);
+                        barrier.TakeDamage();
+                    }
                 }
                 if(hitInfo.collider.tag == "Barrel")
                 {

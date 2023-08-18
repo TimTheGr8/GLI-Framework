@@ -101,11 +101,6 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
-    public void PlayAudio(AudioClip clip, float volume)
-    {
-        _audio.PlayOneShot(clip, volume);
-    }
-
     public void UpdateEnemyCount(int amount)
     {
         _currentEnemyCount+= amount;
